@@ -1,6 +1,6 @@
-# fly.toml file generated for snowy-tree-6114 on 2021-09-11T00:23:59+03:00
+# fly.toml file generated for white-water-1879 on 2021-09-11T00:39:51+03:00
 
-app = "snowy-tree-6114"
+app = "white-water-1879"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5
