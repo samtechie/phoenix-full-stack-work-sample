@@ -18,10 +18,17 @@ defmodule FlyWeb.AppLive.Index do
 
     # Only make the API call if the websocket is setup. Not on initial render.
     if connected?(socket) do
+      Process.send_after(self(), :update, 30000)
       {:ok, fetch_apps(socket)}
     else
       {:ok, socket}
     end
+  end
+
+  @impl true
+  def handle_info(:update, socket) do
+    Process.send_after(self(), :update, 30000)
+    {:noreply, fetch_apps(socket)}
   end
 
   defp client_config(session) do

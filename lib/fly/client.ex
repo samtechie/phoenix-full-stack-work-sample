@@ -230,6 +230,101 @@ defmodule Fly.Client do
     end
   end
 
+  def fetch_app_status(name, showCompleted, config) do
+    """
+      query($name: String!, $showCompleted: Boolean!) {
+        app(name: $name) {
+          id
+          name
+          deployed
+          status
+          processGroups {
+            name
+            regions
+            maxPerRegion
+            vmSize {
+              name
+              cpuCores
+              memoryMb
+            }
+          }
+          releases(last: 5) {
+            totalCount
+            nodes {
+              version
+              stable
+              description
+              reason
+              createdAt
+              user {
+                name
+                avatarUrl
+              }
+            }
+          }
+          hostname
+          version
+          appUrl
+          organization{
+            id
+            slug
+          }
+          deploymentStatus {
+            id
+            status
+            version
+            description
+            placedCount
+            promoted
+            desiredCount
+            healthyCount
+            unhealthyCount
+         }
+          allocations(showCompleted: $showCompleted){
+            id
+            idShort
+            version
+            latestVersion
+            status
+            desiredStatus
+            totalCheckCount
+            passingCheckCount
+            warningCheckCount
+            criticalCheckCount
+            createdAt
+            updatedAt
+            canary
+            region
+            restarts
+            healthy
+            privateIP
+            taskName
+            checks {
+              status
+              output
+              name
+            }
+          }
+        }
+      }
+    """
+    |> perform_query(%{name: name, showCompleted: showCompleted}, config, :fetch_app_status)
+    |> handle_response()
+    |> case do
+      {:ok, %{"app" => app}} ->
+        Logger.info("app returned: #{inspect(app)}")
+        {:ok, app}
+
+      {:error, _reason} = error ->
+        error
+
+      other ->
+        Logger.error("Unexpected result from fetch_app_status. Response: #{inspect(other)}")
+
+        {:error, "Failed to fetch app status"}
+    end
+  end
+
   def fetch_current_user(config) do
     """
       query {
